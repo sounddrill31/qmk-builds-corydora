@@ -22,6 +22,9 @@ jobs:
           #git remote add upstream https://github.com/${{ env.UPSTREAM_REPO }}.git
           #git fetch upstream
           git clone https://github.com/${{ env.UPSTREAM_REPO }}.git --recurse-submodules qmk_src
+          cd qmk_src
+          git remote add upstream https://github.com/${{ env.UPSTREAM_REPO }}.git # QMK NEEDS THIS!
+          git remote -v
 
       - name: Set up Git user # most of this step doesn't matter. previous repo was operating on itself, this one clones every time. This is just to make git work
         run: |
@@ -53,10 +56,18 @@ jobs:
       - name: Build
         run: |
           echo "Fetching deps"
-          sudo apt install -y git python3-pip
+          sudo apt update
+
+          sudo apt install -y git python3-pip 
+
+          sudo apt install -y gcc-arm-none-eabi  || true
+          sudo apt install -y gcc-avr avr-libc avrdude  || true
+          sudo apt install -y dfu-programmer dfu-util || true
+
+
           pip install --user qmk || true # Allow failing
           pip install --user qmk --break-system-packages || true # Allow failing 
-
+          
           cd qmk_src
           git submodule update --init --recursive
           
