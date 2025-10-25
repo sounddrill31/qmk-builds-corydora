@@ -27,10 +27,11 @@ jobs:
           #git fetch upstream
           git clone https://github.com/${{ env.UPSTREAM_REPO }}.git --recurse-submodules qmk_src
 
-      - name: Reset fork branch to upstream/master
-        run: |
-          cd qmk_src
-          git reset --hard upstream/${{ env.UPSTREAM_BRANCH }}
+#      - name: Reset fork branch to upstream/master # this is also not needed, leftover from previous repo
+#        run: |
+#          cd qmk_src
+#          #git reset --hard upstream/${{ env.UPSTREAM_BRANCH }}
+#          git reset --hard origin/${{ env.UPSTREAM_BRANCH }}
 
       - name: Download and apply balub's patches (merge, prefer our changes)
         run: |
