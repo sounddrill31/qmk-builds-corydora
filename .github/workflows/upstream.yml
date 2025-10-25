@@ -45,8 +45,21 @@ jobs:
       #- name: Push to fork
       #  run: |
       #    git push origin ${{ env.FORK_BRANCH }} --force
-      - name: Build
+      - name: Verify
         run: |
-          echo "this is just a placeholder. For now we will show the git log difference from upstream"
+          echo "This will show the git log difference from upstream"
           cd qmk_src
           git log origin/${{ env.UPSTREAM_BRANCH }}..HEAD
+      - name: Build
+        run: |
+          echo "Fetching deps"
+          sudo apt install -y git python3-pip
+          pip install --user qmk || true # Allow failing
+          pip install --user qmk --break-system-packages || true # Allow failing 
+
+          cd qmk_src
+          git submodule update --init --recursive
+          
+          echo "Running QMK Setup"
+          yes | $HOME/.local/bin/qmk setup
+          qmk compile -kb handwired/corydora -km default
