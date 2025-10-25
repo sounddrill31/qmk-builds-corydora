@@ -15,17 +15,17 @@ jobs:
       PATCH_URL: https://github.com/qmk/qmk_firmware/compare/master...balub:qmk_firmware:master.patch
 
     steps:
-      - name: Set up Git user # most of this step doesn't matter. previous repo was operating on itself, this one clones every time. This is just to make git work
-        run: |
-          git init
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
       - name: Add upstream remote and fetch
         run: |
           #git remote add upstream https://github.com/${{ env.UPSTREAM_REPO }}.git
           #git fetch upstream
           git clone https://github.com/${{ env.UPSTREAM_REPO }}.git --recurse-submodules qmk_src
+
+      - name: Set up Git user # most of this step doesn't matter. previous repo was operating on itself, this one clones every time. This is just to make git work
+        run: |
+          cd qmk_src
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
 #      - name: Reset fork branch to upstream/master # this is also not needed, leftover from previous repo
 #        run: |
@@ -46,4 +46,5 @@ jobs:
       - name: Build
         run: |
           echo "this is just a placeholder. For now we will show the git log difference from upstream"
+          cd qmk_src
           git log origin/${{ env.UPSTREAM_BRANCH }}..HEAD
