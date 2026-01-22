@@ -10,6 +10,9 @@ on:
 jobs:
   sync-fork:
     runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli
+    strategy:
+      fail-fast: false
     env:
       UPSTREAM_REPO: qmk/qmk_firmware
       UPSTREAM_BRANCH: master
@@ -55,22 +58,14 @@ jobs:
           git log origin/${{ env.UPSTREAM_BRANCH }}..HEAD
       - name: Build
         run: |
-          echo "Fetching deps"
-          sudo apt update
-
-          sudo apt install -y git python3-pip 
-
-          sudo apt install -y gcc-arm-none-eabi  || true
-          sudo apt install -y gcc-avr avr-libc avrdude  || true
-          sudo apt install -y dfu-programmer dfu-util || true
-
-
-          pip install --user qmk || true # Allow failing
-          pip install --user qmk --break-system-packages || true # Allow failing 
-          
           cd qmk_src
           git submodule update --init --recursive
           
-          echo "Running QMK Setup"
-          yes | $HOME/.local/bin/qmk setup
           qmk compile -kb handwired/corydora -km default
+      - name: Upload firmware
+        uses: actions/upload-artifact@v6
+        continue-on-error: true
+        with:
+          name: Corydora
+          path: |
+            *.uf2
