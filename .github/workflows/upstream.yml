@@ -60,8 +60,9 @@ jobs:
         run: |
           cd qmk_src
           git submodule update --init --recursive
-          
-          qmk compile -kb handwired/corydora -km default
+          qmk config compile.keymap=default
+          cd keyboards/handwired/corydora
+          qmk compile
       - name: Upload firmware
         uses: actions/upload-artifact@v6
         continue-on-error: true
