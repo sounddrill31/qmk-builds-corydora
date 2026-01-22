@@ -40,9 +40,6 @@ jobs:
           git am -3 --keep-non-patch ~/balub.patch || \
           (git am --abort && git apply --3way --reject ~/balub.patch)
 
-      #- name: Push to fork
-      #  run: |
-      #    git push origin ${{ env.FORK_BRANCH }} --force
       - name: Verify
         run: |
           echo "This will show the git log difference from upstream"
@@ -56,6 +53,7 @@ jobs:
           echo "---"
           ls -l keyboards/handwired/corydora
           echo "---"
+          cd keyboards
           qmk compile -kb handwired/corydora -km default
       - name: Upload firmware
         uses: actions/upload-artifact@v6
