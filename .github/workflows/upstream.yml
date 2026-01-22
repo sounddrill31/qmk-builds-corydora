@@ -22,28 +22,20 @@ jobs:
     steps:
       - name: Add upstream remote and fetch
         run: |
-          #git remote add upstream https://github.com/${{ env.UPSTREAM_REPO }}.git
-          #git fetch upstream
-          git clone https://github.com/${{ env.UPSTREAM_REPO }}.git --recurse-submodules qmk_src
-          cd qmk_src
+          git clone https://github.com/${{ env.UPSTREAM_REPO }}.git --recurse-submodules qmk_firmware
+          cd qmk_firmware
           git remote add upstream https://github.com/${{ env.UPSTREAM_REPO }}.git # QMK NEEDS THIS!
           git remote -v
 
       - name: Set up Git user # most of this step doesn't matter. previous repo was operating on itself, this one clones every time. This is just to make git work
         run: |
-          cd qmk_src
+          cd qmk_firmware
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-#      - name: Reset fork branch to upstream/master # this is also not needed, leftover from previous repo
-#        run: |
-#          cd qmk_src
-#          #git reset --hard upstream/${{ env.UPSTREAM_BRANCH }}
-#          git reset --hard origin/${{ env.UPSTREAM_BRANCH }}
-
       - name: Download and apply balub's patches (merge, prefer our changes)
         run: |
-          cd qmk_src
+          cd qmk_firmware
           curl -L "${PATCH_URL}" -o ~/balub.patch
           git am -3 --keep-non-patch ~/balub.patch || \
           (git am --abort && git apply --3way --reject ~/balub.patch)
@@ -54,15 +46,17 @@ jobs:
       - name: Verify
         run: |
           echo "This will show the git log difference from upstream"
-          cd qmk_src
+          cd qmk_firmware
           git log origin/${{ env.UPSTREAM_BRANCH }}..HEAD
       - name: Build
         run: |
-          cd qmk_src
+          cd qmk_firmware
           git submodule update --init --recursive
           qmk config compile.keymap=default
-          cd keyboards/handwired/corydora
-          qmk compile
+          echo "---"
+          ls -l keyboards/handwired/corydora
+          echo "---"
+          qmk compile -kb handwired/corydora -km default
       - name: Upload firmware
         uses: actions/upload-artifact@v6
         continue-on-error: true
